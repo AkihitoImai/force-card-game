@@ -118,6 +118,15 @@
     .mini-table th {
       background: #f3f3f3;
     }
+
+    .card-label {
+      display: inline-block;
+      background: #eef3ff;
+      border: 1px solid #b7c8ff;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -135,166 +144,152 @@
   </div>
 
   <script>
-    const level1Questions = [
-      {
-        situation: "机の上に本が置かれている。本にはたらく重力はどれか。",
-        correct: "地球が本を引く力",
-        choices: [
-          "地球が本を引く力",
-          "本が地球を引く力",
-          "机が本を押す力",
-          "本が机を押す力"
-        ],
-        explanation: "重力は，地球が物体を引く力です。この場合は「地球が本を引く力」が本にはたらく重力です。"
-      },
-      {
-        situation: "机の上に本が置かれている。本にはたらく垂直抗力はどれか。",
-        correct: "机が本を押す力",
-        choices: [
-          "地球が本を引く力",
-          "本が地球を引く力",
-          "机が本を押す力",
-          "本が机を押す力"
-        ],
-        explanation: "垂直抗力は，接している面が物体を押す力です。この場合は「机が本を押す力」です。"
-      },
-      {
-        situation: "糸で小球をつるしている。小球にはたらく張力はどれか。",
-        correct: "糸が小球を引く力",
-        choices: [
-          "小球が糸を引く力",
-          "糸が小球を引く力",
-          "地球が小球を引く力",
-          "小球が地球を引く力"
-        ],
-        explanation: "張力は，糸が物体を引く力です。この場合は「糸が小球を引く力」です。"
-      },
-      {
-        situation: "ばねにつながれた小球がある。小球にはたらく弾性力はどれか。",
-        correct: "ばねが小球を引く力",
-        choices: [
-          "小球がばねを引く力",
-          "ばねが小球を引く力",
-          "地球が小球を引く力",
-          "小球が地球を引く力"
-        ],
-        explanation: "弾性力は，変形したばねなどが物体に及ぼす力です。この場合は「ばねが小球を引く力」です。"
-      }
-    ];
+    /*
+      forceCards が教材の中心データです。
 
-    const level2Questions = [
-      {
-        situation: "机の上に本が静止している。「地球が本を引く力」とつりあう力はどれか。",
-        correct: "机が本を押す力",
-        choices: [
-          "机が本を押す力",
-          "本が地球を引く力",
-          "本が机を押す力",
-          "つりあう力はない"
-        ],
-        explanation: "力のつりあいは，同じ物体にはたらく2力で考えます。「地球が本を引く力」と「机が本を押す力」は，どちらも本にはたらく力なのでつりあいます。"
-      },
-      {
-        situation: "机の上に本が静止している。「机が本を押す力」とつりあう力はどれか。",
-        correct: "地球が本を引く力",
-        choices: [
-          "地球が本を引く力",
-          "本が机を押す力",
-          "本が地球を引く力",
-          "つりあう力はない"
-        ],
-        explanation: "「机が本を押す力」とつりあうのは，同じ本にはたらく「地球が本を引く力」です。「本が机を押す力」は作用・反作用の相手であり，つりあいではありません。"
-      },
-      {
-        situation: "机の上に本が静止している。「本が机を押す力」とつりあう力はどれか。",
-        correct: "つりあう力はない",
-        choices: [
-          "机が本を押す力",
-          "地球が本を引く力",
-          "本が地球を引く力",
-          "つりあう力はない"
-        ],
-        explanation: "「本が机を押す力」は机にはたらく力です。この選択肢の中には，同じ机にはたらいて逆向きにつりあう力がないため，「つりあう力はない」が正解です。"
-      },
-      {
-        situation: "糸で小球が静止している。「地球が小球を引く力」とつりあう力はどれか。",
-        correct: "糸が小球を引く力",
-        choices: [
-          "糸が小球を引く力",
-          "小球が糸を引く力",
-          "小球が地球を引く力",
-          "つりあう力はない"
-        ],
-        explanation: "どちらも小球にはたらく力です。下向きの重力と，上向きの張力がつりあっています。"
-      },
-      {
-        situation: "ばねにつながれた小球が静止している。「地球が小球を引く力」とつりあう力はどれか。",
-        correct: "ばねが小球を引く力",
-        choices: [
-          "ばねが小球を引く力",
-          "小球がばねを引く力",
-          "小球が地球を引く力",
-          "つりあう力はない"
-        ],
-        explanation: "どちらも小球にはたらく力です。重力と，ばねが小球を引く力がつりあっています。"
-      }
-    ];
+      id            ：カード番号
+      text          ：カードに表示する力
+      subject       ：力を及ぼす側
+      object        ：力を受ける側
+      action        ：押す／引く
+      forceName     ：力の名称
+      situation     ：どの場面のカードか
+      balanceWith   ：つりあう相手のカードID。ない場合は null
+      reactionWith  ：反作用のカードID
+    */
 
-    const level3Questions = [
+    const forceCards = [
       {
-        situation: "「地球が本を引く力」の反作用はどれか。",
-        correct: "本が地球を引く力",
-        choices: [
-          "本が地球を引く力",
-          "机が本を押す力",
-          "本が机を押す力",
-          "反作用はない"
-        ],
-        explanation: "作用・反作用では，主語と目的語が入れ替わります。「地球が本を引く力」に対して，反作用は「本が地球を引く力」です。"
+        id: 1,
+        text: "地球が本を引く力",
+        subject: "地球",
+        object: "本",
+        action: "引く",
+        forceName: "重力",
+        situation: "机の上に本が置かれている。",
+        balanceWith: 3,
+        reactionWith: 2
       },
       {
-        situation: "「机が本を押す力」の反作用はどれか。",
-        correct: "本が机を押す力",
-        choices: [
-          "本が机を押す力",
-          "地球が本を引く力",
-          "本が地球を引く力",
-          "反作用はない"
-        ],
-        explanation: "「机が本を押す力」の反作用は，「本が机を押す力」です。2つの力は別々の物体にはたらきます。"
+        id: 2,
+        text: "本が地球を引く力",
+        subject: "本",
+        object: "地球",
+        action: "引く",
+        forceName: "重力の反作用",
+        situation: "机の上に本が置かれている。",
+        balanceWith: null,
+        reactionWith: 1
       },
       {
-        situation: "「糸が小球を引く力」の反作用はどれか。",
-        correct: "小球が糸を引く力",
-        choices: [
-          "小球が糸を引く力",
-          "地球が小球を引く力",
-          "糸が地球を引く力",
-          "反作用はない"
-        ],
-        explanation: "主語と目的語を入れ替えると，「小球が糸を引く力」になります。これが反作用です。"
+        id: 3,
+        text: "机が本を押す力",
+        subject: "机",
+        object: "本",
+        action: "押す",
+        forceName: "垂直抗力",
+        situation: "机の上に本が置かれている。",
+        balanceWith: 1,
+        reactionWith: 4
       },
       {
-        situation: "「ばねが小球を引く力」の反作用はどれか。",
-        correct: "小球がばねを引く力",
-        choices: [
-          "小球がばねを引く力",
-          "地球が小球を引く力",
-          "ばねが地球を引く力",
-          "反作用はない"
-        ],
-        explanation: "「ばねが小球を引く力」の反作用は，「小球がばねを引く力」です。作用・反作用は，同じ物体にはたらく力ではありません。"
+        id: 4,
+        text: "本が机を押す力",
+        subject: "本",
+        object: "机",
+        action: "押す",
+        forceName: "垂直抗力の反作用",
+        situation: "机の上に本が置かれている。",
+        balanceWith: null,
+        reactionWith: 3
       },
       {
-        situation: "「本が机を押す力」の反作用はどれか。",
-        correct: "机が本を押す力",
-        choices: [
-          "机が本を押す力",
-          "地球が本を引く力",
-          "本が地球を引く力",
-          "反作用はない"
-        ],
-        explanation: "「本が机を押す力」の反作用は，「机が本を押す力」です。この2力は別々の物体にはたらくため，つりあいとは異なります。"
+        id: 5,
+        text: "地球が小球を引く力",
+        subject: "地球",
+        object: "小球",
+        action: "引く",
+        forceName: "重力",
+        situation: "糸で小球をつるしている。",
+        balanceWith: 7,
+        reactionWith: 6
+      },
+      {
+        id: 6,
+        text: "小球が地球を引く力",
+        subject: "小球",
+        object: "地球",
+        action: "引く",
+        forceName: "重力の反作用",
+        situation: "糸で小球をつるしている。",
+        balanceWith: null,
+        reactionWith: 5
+      },
+      {
+        id: 7,
+        text: "糸が小球を引く力",
+        subject: "糸",
+        object: "小球",
+        action: "引く",
+        forceName: "張力",
+        situation: "糸で小球をつるしている。",
+        balanceWith: 5,
+        reactionWith: 8
+      },
+      {
+        id: 8,
+        text: "小球が糸を引く力",
+        subject: "小球",
+        object: "糸",
+        action: "引く",
+        forceName: "張力の反作用",
+        situation: "糸で小球をつるしている。",
+        balanceWith: null,
+        reactionWith: 7
+      },
+      {
+        id: 9,
+        text: "地球が小球を引く力",
+        subject: "地球",
+        object: "小球",
+        action: "引く",
+        forceName: "重力",
+        situation: "ばねにつながれた小球が静止している。",
+        balanceWith: 11,
+        reactionWith: 10
+      },
+      {
+        id: 10,
+        text: "小球が地球を引く力",
+        subject: "小球",
+        object: "地球",
+        action: "引く",
+        forceName: "重力の反作用",
+        situation: "ばねにつながれた小球が静止している。",
+        balanceWith: null,
+        reactionWith: 9
+      },
+      {
+        id: 11,
+        text: "ばねが小球を引く力",
+        subject: "ばね",
+        object: "小球",
+        action: "引く",
+        forceName: "弾性力",
+        situation: "ばねにつながれた小球が静止している。",
+        balanceWith: 9,
+        reactionWith: 12
+      },
+      {
+        id: 12,
+        text: "小球がばねを引く力",
+        subject: "小球",
+        object: "ばね",
+        action: "引く",
+        forceName: "弾性力の反作用",
+        situation: "ばねにつながれた小球が静止している。",
+        balanceWith: null,
+        reactionWith: 11
       }
     ];
 
@@ -307,7 +302,7 @@
     function startLevel1() {
       currentLevelTitle = "レベル1：力の名称";
       currentLevelNumber = 1;
-      currentQuestions = shuffle([...level1Questions]);
+      currentQuestions = makeLevel1Questions();
       currentIndex = 0;
       score = 0;
       showQuestion();
@@ -316,7 +311,7 @@
     function startLevel2() {
       currentLevelTitle = "レベル2：力のつりあい";
       currentLevelNumber = 2;
-      currentQuestions = shuffle([...level2Questions]);
+      currentQuestions = makeLevel2Questions();
       currentIndex = 0;
       score = 0;
       showQuestion();
@@ -325,10 +320,115 @@
     function startLevel3() {
       currentLevelTitle = "レベル3：作用・反作用";
       currentLevelNumber = 3;
-      currentQuestions = shuffle([...level3Questions]);
+      currentQuestions = makeLevel3Questions();
       currentIndex = 0;
       score = 0;
       showQuestion();
+    }
+
+    function makeLevel1Questions() {
+      const targetCards = forceCards.filter(card =>
+        ["重力", "垂直抗力", "張力", "弾性力"].includes(card.forceName)
+      );
+
+      return shuffle(targetCards.map(card => {
+        const choices = makeForceNameChoices(card.forceName);
+
+        return {
+          situation: `${card.situation}<br><span class="card-label">${card.text}</span> の力の名称はどれか。`,
+          correct: card.forceName,
+          choices: choices,
+          explanation: `「${card.text}」は，${card.object}にはたらく ${card.forceName} です。`
+        };
+      }));
+    }
+
+    function makeLevel2Questions() {
+      const targetCards = forceCards.filter(card =>
+        card.forceName === "重力" || card.forceName === "垂直抗力" || card.forceName === "張力" || card.forceName === "弾性力"
+      );
+
+      return shuffle(targetCards.map(card => {
+        const answerCard = getCardById(card.balanceWith);
+        const correctText = answerCard ? answerCard.text : "つりあう力はない";
+
+        const choices = makeCardChoices(correctText, card.id, "balance");
+
+        return {
+          situation: `${card.situation}<br><span class="card-label">${card.text}</span> とつりあう力はどれか。`,
+          correct: correctText,
+          choices: choices,
+          explanation: makeBalanceExplanation(card, answerCard)
+        };
+      }));
+    }
+
+    function makeLevel3Questions() {
+      const targetCards = forceCards.filter(card =>
+        card.reactionWith !== null &&
+        ["重力", "垂直抗力", "張力", "弾性力"].includes(card.forceName)
+      );
+
+      return shuffle(targetCards.map(card => {
+        const answerCard = getCardById(card.reactionWith);
+        const correctText = answerCard.text;
+
+        const choices = makeCardChoices(correctText, card.id, "reaction");
+
+        return {
+          situation: `${card.situation}<br><span class="card-label">${card.text}</span> の反作用はどれか。`,
+          correct: correctText,
+          choices: choices,
+          explanation: makeReactionExplanation(card, answerCard)
+        };
+      }));
+    }
+
+    function makeForceNameChoices(correctName) {
+      const names = ["重力", "垂直抗力", "張力", "弾性力"];
+      return shuffle([...new Set([correctName, ...names])]).slice(0, 4);
+    }
+
+    function makeCardChoices(correctText, baseCardId, mode) {
+      const baseCard = getCardById(baseCardId);
+
+      let candidates = forceCards
+        .filter(card => card.situation === baseCard.situation)
+        .map(card => card.text);
+
+      candidates.push("つりあう力はない");
+      candidates.push("反作用はない");
+
+      candidates = [...new Set(candidates)];
+
+      let choices = [correctText];
+
+      const wrongChoices = shuffle(candidates.filter(text => text !== correctText));
+
+      for (const choice of wrongChoices) {
+        if (choices.length < 4) {
+          choices.push(choice);
+        }
+      }
+
+      return shuffle(choices);
+    }
+
+    function makeBalanceExplanation(card, answerCard) {
+      if (!answerCard) {
+        return `力のつりあいは，同じ物体にはたらく2力で考えます。「${card.text}」は ${card.object} にはたらく力ですが，この選択肢の中には同じ物体にはたらいてつりあう力がありません。`;
+      }
+
+      return `力のつりあいは，同じ物体にはたらく2力で考えます。「${card.text}」と「${answerCard.text}」は，どちらも ${card.object} にはたらく力なのでつりあいます。`;
+    }
+
+    function makeReactionExplanation(card, answerCard) {
+      return `作用・反作用では，主語と目的語が入れ替わります。「${card.text}」に対して，反作用は「${answerCard.text}」です。2つの力は別々の物体にはたらきます。`;
+    }
+
+    function getCardById(id) {
+      if (id === null) return null;
+      return forceCards.find(card => card.id === id);
     }
 
     function showQuestion() {
@@ -354,7 +454,7 @@
         </div>
 
         <div class="choices">
-          ${shuffle([...q.choices]).map(choice => `
+          ${q.choices.map(choice => `
             <button onclick="checkAnswer('${escapeQuote(choice)}')">${choice}</button>
           `).join("")}
         </div>
