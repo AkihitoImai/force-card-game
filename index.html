@@ -101,6 +101,23 @@
       margin-top: 12px;
       color: #555;
     }
+
+    .mini-table {
+      margin-top: 16px;
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 15px;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .mini-table th {
+      background: #f3f3f3;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +129,7 @@
       <div class="menu">
         <button onclick="startLevel1()">レベル1：力の名称を確認する</button>
         <button onclick="startLevel2()">レベル2：力のつりあいを確認する</button>
-        <button onclick="alert('レベル3は次に作ります')">レベル3：作用・反作用を確認する</button>
+        <button onclick="startLevel3()">レベル3：作用・反作用を確認する</button>
       </div>
     </div>
   </div>
@@ -223,13 +240,73 @@
       }
     ];
 
+    const level3Questions = [
+      {
+        situation: "「地球が本を引く力」の反作用はどれか。",
+        correct: "本が地球を引く力",
+        choices: [
+          "本が地球を引く力",
+          "机が本を押す力",
+          "本が机を押す力",
+          "反作用はない"
+        ],
+        explanation: "作用・反作用では，主語と目的語が入れ替わります。「地球が本を引く力」に対して，反作用は「本が地球を引く力」です。"
+      },
+      {
+        situation: "「机が本を押す力」の反作用はどれか。",
+        correct: "本が机を押す力",
+        choices: [
+          "本が机を押す力",
+          "地球が本を引く力",
+          "本が地球を引く力",
+          "反作用はない"
+        ],
+        explanation: "「机が本を押す力」の反作用は，「本が机を押す力」です。2つの力は別々の物体にはたらきます。"
+      },
+      {
+        situation: "「糸が小球を引く力」の反作用はどれか。",
+        correct: "小球が糸を引く力",
+        choices: [
+          "小球が糸を引く力",
+          "地球が小球を引く力",
+          "糸が地球を引く力",
+          "反作用はない"
+        ],
+        explanation: "主語と目的語を入れ替えると，「小球が糸を引く力」になります。これが反作用です。"
+      },
+      {
+        situation: "「ばねが小球を引く力」の反作用はどれか。",
+        correct: "小球がばねを引く力",
+        choices: [
+          "小球がばねを引く力",
+          "地球が小球を引く力",
+          "ばねが地球を引く力",
+          "反作用はない"
+        ],
+        explanation: "「ばねが小球を引く力」の反作用は，「小球がばねを引く力」です。作用・反作用は，同じ物体にはたらく力ではありません。"
+      },
+      {
+        situation: "「本が机を押す力」の反作用はどれか。",
+        correct: "机が本を押す力",
+        choices: [
+          "机が本を押す力",
+          "地球が本を引く力",
+          "本が地球を引く力",
+          "反作用はない"
+        ],
+        explanation: "「本が机を押す力」の反作用は，「机が本を押す力」です。この2力は別々の物体にはたらくため，つりあいとは異なります。"
+      }
+    ];
+
     let currentQuestions = [];
     let currentIndex = 0;
     let score = 0;
     let currentLevelTitle = "";
+    let currentLevelNumber = 1;
 
     function startLevel1() {
       currentLevelTitle = "レベル1：力の名称";
+      currentLevelNumber = 1;
       currentQuestions = shuffle([...level1Questions]);
       currentIndex = 0;
       score = 0;
@@ -238,7 +315,17 @@
 
     function startLevel2() {
       currentLevelTitle = "レベル2：力のつりあい";
+      currentLevelNumber = 2;
       currentQuestions = shuffle([...level2Questions]);
+      currentIndex = 0;
+      score = 0;
+      showQuestion();
+    }
+
+    function startLevel3() {
+      currentLevelTitle = "レベル3：作用・反作用";
+      currentLevelNumber = 3;
+      currentQuestions = shuffle([...level3Questions]);
       currentIndex = 0;
       score = 0;
       showQuestion();
@@ -254,9 +341,14 @@
         <div class="question-box">
           <h2>${currentLevelTitle}</h2>
           <p>${q.situation}</p>
-          ${currentLevelTitle.includes("つりあい") ? `
+          ${currentLevelNumber === 2 ? `
             <div class="hint-box">
               ヒント：力のつりあいは，<strong>同じ物体にはたらく2力</strong>で考えます。
+            </div>
+          ` : ""}
+          ${currentLevelNumber === 3 ? `
+            <div class="hint-box">
+              ヒント：作用・反作用は，<strong>主語と目的語が入れ替わる2力</strong>です。
             </div>
           ` : ""}
         </div>
@@ -281,6 +373,23 @@
           <div class="explanation">
             正解：${q.correct}<br>
             ${q.explanation}
+
+            ${currentLevelNumber >= 2 ? `
+              <table class="mini-table">
+                <tr>
+                  <th>関係</th>
+                  <th>見るポイント</th>
+                </tr>
+                <tr>
+                  <td>力のつりあい</td>
+                  <td>同じ物体にはたらく2力か</td>
+                </tr>
+                <tr>
+                  <td>作用・反作用</td>
+                  <td>主語と目的語が入れ替わっているか</td>
+                </tr>
+              </table>
+            ` : ""}
           </div>
           <button class="next-button" onclick="nextQuestion()">
             ${currentIndex + 1 < currentQuestions.length ? "次の問題へ" : "結果を見る"}
@@ -302,10 +411,15 @@
     }
 
     function showResult() {
+      const retryFunction =
+        currentLevelNumber === 1 ? "startLevel1()" :
+        currentLevelNumber === 2 ? "startLevel2()" :
+        "startLevel3()";
+
       document.getElementById("app").innerHTML = `
         <h2>結果</h2>
         <p>${currentLevelTitle}：${currentQuestions.length}問中 ${score}問正解でした。</p>
-        <button class="next-button" onclick="${currentLevelTitle.includes('名称') ? 'startLevel1()' : 'startLevel2()'}">もう一度練習する</button>
+        <button class="next-button" onclick="${retryFunction}">もう一度練習する</button>
         <button class="next-button" onclick="showMenu()">メニューに戻る</button>
       `;
     }
@@ -315,7 +429,7 @@
         <div class="menu">
           <button onclick="startLevel1()">レベル1：力の名称を確認する</button>
           <button onclick="startLevel2()">レベル2：力のつりあいを確認する</button>
-          <button onclick="alert('レベル3は次に作ります')">レベル3：作用・反作用を確認する</button>
+          <button onclick="startLevel3()">レベル3：作用・反作用を確認する</button>
         </div>
       `;
     }
